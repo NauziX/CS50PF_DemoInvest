@@ -48,7 +48,9 @@ def Menu():
         print("1. Crear Usuario ")
         print("2. Eliminar Usuario ")
         print("3. Información de Usuario")
-        print("4. Salir")
+        print("4. Buy Cryptos")
+        print("5. Buy Shares")
+        print("6. Salir")
 
         select = int(input("introduce una opcion"))
 
