@@ -126,7 +126,7 @@ def Menu():
             case 6:
                 totalcartera = 0
                 for share in current_user.portfolio:
-                    totalcartera += share.priceinfo()
+                    totalcartera += (share.priceinfo())
                 current_user.balance += totalcartera
                 print(f"Tu Acciones se han vendido por {totalcartera}")
                 print(f"Tu Balance actuale es de {current_user.balance}")
