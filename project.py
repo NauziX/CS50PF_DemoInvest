@@ -1,5 +1,5 @@
 import yfinance as yf
-
+import json
 
 current_user = None
 
@@ -49,6 +49,9 @@ class Product:
     def __str__(self):
         return (f"Name: {self.name} Symbol: {self.symbol} Price: {self.price}")
 
+    def priceinfo(self):
+        return self.price
+
 
 class Crypto(Product):
     def __init__(self, name, symbol, price, blockchain):
@@ -72,10 +75,11 @@ def Menu():
         print("2. Eliminar Usuario ")
         print("3. Información de Usuario")
         print("4. Comprar Acciones")
-        print("5. Mostrar Valor")
+        print("5. Mostrar Portfolio")
         print("6. Vender Productos")
         print("7. Guardar Archivo")
-        print("8. Salir")
+        print("8. Cargar Archivo")
+        print("9. Salir")
 
         select = int(input("introduce una opcion"))
 
@@ -87,7 +91,7 @@ def Menu():
                     current_user = User(name, balance)
                     print("Usuario Registrado")
                 except TypeError:
-                    print("El Balance es un numero")
+                    print("El Balance no es un numero")
 
             case 2:
 
@@ -115,17 +119,34 @@ def Menu():
                     print("No has ingresado el nombre correctamente")
 
             case 5:
-                print("Mostrar Valor")
-                share = input("Que Acción/Cryptomoneda quieres verificar")
-                current_sharecryp(share)
-
-            case 6:
+                print("Mostrando Portfolio")
                 for share in current_user.portfolio:
                     print(share)
-                break
+
+            case 6:
+                totalcartera = 0
+                for share in current_user.portfolio:
+                    totalcartera += share.priceinfo()
+                current_user.balance += totalcartera
+                print(f"Tu Acciones se han vendido por {totalcartera}")
+                print(f"Tu Balance actuale es de {current_user.balance}")
+
             case 7:
+                save_data()
+                print("Datos guardados correctamente")
+
+            case 8:
+                name, balance, portfolio = load_data()
+                current_user = User(name, balance)
+                current_user.portfolio = portfolio
+                print("Datos cargados correctamente ")
+
+            case 9:
                 print("Salir")
                 break
+
+            case _:
+                print("Selecciona una opcion del menu")
 
 
 def current_sharecryp(ticker_symbol):
@@ -138,8 +159,38 @@ def current_sharecryp(ticker_symbol):
     return name, symbol, price
 
 
-def function_delete():
-    pass
+def save_data():
+
+    portfolio = []
+    datos = {"Usuario": current_user.username,
+             "Balance": current_user.balance,
+             "Portfolio": portfolio}
+
+    for share in current_user.portfolio:
+        portfolio.append(share.name)
+        portfolio.append(share.symbol)
+        portfolio.append(share.price)
+
+    datos["portfolio"] = portfolio
+
+    with open("datos.json", "w") as archivo:
+        json.dump(datos, archivo, indent=4)
+
+
+def load_data():
+
+    name = ""
+    balance = 0
+    portfolio = []
+
+    with open("datos.json", "r") as archivo:
+        datos_cargados = json.load(archivo)
+
+    name = datos_cargados["Usuario"]
+    balance = datos_cargados["Balance"]
+    portfolio = datos_cargados["Portfolio"]
+
+    return name, balance, portfolio
 
 
 def main():
