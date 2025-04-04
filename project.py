@@ -1,3 +1,6 @@
+import yfinance as yf
+
+
 current_user = None
 
 
@@ -10,12 +13,31 @@ class User:
     def info(self):
         print(
             f"Nuestro Usuario: {self.username} y nuestro balance actuales es de {self.balance}€")
+        print("Portfolia actual: ")
+        for asset in self.portfolio:
+            print(f"- {asset}")
 
-    def delete(self):
-        if current_user != None:
-            current_user = None
+    def buy(self, product):
+        if isinstance(product, Product):
+            if self.balance >= product.price:
+                self.portfolio.append(product)
+                self.balance -= product.price
+                print(f"Has Comprado: {product}")
+                print(f"Balance actual: {self.balance}€")
+            else:
+                print("Balance insuficiente para realizar compra.")
         else:
-            print("No se ha cargado ningun usuario")
+            print("El objeto proporcianod no es un producto válido.")
+
+    def sell(self, product):
+
+        if isinstance(product, Product):
+            self.portfolio.remove(product)
+            self.balance += product.price
+            print(f"Has Comprado: {product}")
+            print(f"Balance actual: {self.balance}€")
+        else:
+            print("El objeto proporciando no es un producto válido.")
 
 
 class Product:
@@ -43,14 +65,17 @@ class Shares(Product):
 def Menu():
 
     global current_user
+
     while True:
         print("--------Demo Invest --------")
         print("1. Crear Usuario ")
         print("2. Eliminar Usuario ")
         print("3. Información de Usuario")
-        print("4. Buy Cryptos")
-        print("5. Buy Shares")
-        print("6. Salir")
+        print("4. Comprar Acciones")
+        print("5. Mostrar Valor")
+        print("6. Vender Productos")
+        print("7. Guardar Archivo")
+        print("8. Salir")
 
         select = int(input("introduce una opcion"))
 
@@ -58,7 +83,7 @@ def Menu():
             case 1:
                 try:
                     name = input("Nombre de usuario: ")
-                    balance = input("Balance Inicial: ")
+                    balance = int(input("Balance Inicial: "))
                     current_user = User(name, balance)
                     print("Usuario Registrado")
                 except TypeError:
@@ -80,14 +105,37 @@ def Menu():
                     current_user.info()
 
             case 4:
-                print("Saliendo")
+                share = input(print("Accion que quieres comprar"))
+                name, symbol, price = current_sharecryp(share)
+                buyshare = Shares(name, symbol, price)
+                current_user.buy(buyshare)
+                if buyshare:
+                    print("accion comprada")
+                else:
+                    print("No has ingresado el nombre correctamente")
+
+            case 5:
+                print("Mostrar Valor")
+                share = input("Que Acción/Cryptomoneda quieres verificar")
+                current_sharecryp(share)
+
+            case 6:
+                for share in current_user.portfolio:
+                    print(share)
                 break
-            case _:
-                print("opcion no valida vuelva a intetarlo")
+            case 7:
+                print("Salir")
+                break
 
 
-def function_info():
-    pass
+def current_sharecryp(ticker_symbol):
+    ticker = yf.Ticker(ticker_symbol)
+    info = ticker.info
+    price = info.get('regularMarketPrice', None)
+    name = info.get('longName')
+    symbol = info.get('symbol')
+    print(f"Nombre: {name} Simbolo: {symbol} Price: {price}")
+    return name, symbol, price
 
 
 def function_delete():
