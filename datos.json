@@ -1,0 +1,16 @@
+{
+    "Usuario": "Reyes",
+    "Balance": 409.67,
+    "Portfolio": [
+        {
+            "Name": "Apple Inc.",
+            "Symbol": "AAPL",
+            "Price": 202.52
+        },
+        {
+            "Name": "Microsoft Corporation",
+            "Symbol": "MSFT",
+            "Price": 387.81
+        }
+    ]
+}
