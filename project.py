@@ -5,10 +5,10 @@ current_user = None
 
 
 class User:
-    def __init__(self, username, balance=0):
+    def __init__(self, username, balance=0, portfolio=[]):
         self.username = username
         self.balance = balance
-        self.portfolio = []
+        self.portfolio = portfolio
 
     def info(self):
         print(
@@ -85,6 +85,7 @@ def Menu():
 
         match select:
             case 1:
+
                 try:
                     name = input("Nombre de usuario: ")
                     balance = int(input("Balance Inicial: "))
@@ -124,21 +125,14 @@ def Menu():
                     print(share)
 
             case 6:
-                totalcartera = 0
-                for share in current_user.portfolio:
-                    totalcartera += (share.priceinfo())
-                current_user.balance += totalcartera
-                print(f"Tu Acciones se han vendido por {totalcartera}")
-                print(f"Tu Balance actuale es de {current_user.balance}")
+                sell_shares()
 
             case 7:
                 save_data()
                 print("Datos guardados correctamente")
 
             case 8:
-                name, balance, portfolio = load_data()
-                current_user = User(name, balance)
-                current_user.portfolio = portfolio
+                load_data()
                 print("Datos cargados correctamente ")
 
             case 9:
@@ -150,6 +144,9 @@ def Menu():
 
 
 def current_sharecryp(ticker_symbol):
+    """
+    Cargo el ticket que vamos a usar para la compra
+    """
     ticker = yf.Ticker(ticker_symbol)
     info = ticker.info
     price = info.get('regularMarketPrice', None)
@@ -160,25 +157,28 @@ def current_sharecryp(ticker_symbol):
 
 
 def save_data():
+    """
+    Guardamos los datos que tenemos en User
+    """
+    datos = {
+        "Usuario": current_user.username,
+        "Balance": current_user.balance,
+        "Portfolio": [
+            {"Name": asset.name, "Symbol": asset.symbol, "Price": asset.price}
+            for asset in current_user.portfolio
+        ]
 
-    portfolio = []
-    datos = {"Usuario": current_user.username,
-             "Balance": current_user.balance,
-             "Portfolio": portfolio}
-
-    for share in current_user.portfolio:
-        portfolio.append(share.name)
-        portfolio.append(share.symbol)
-        portfolio.append(share.price)
-
-    datos["portfolio"] = portfolio
+    }
 
     with open("datos.json", "w") as archivo:
         json.dump(datos, archivo, indent=4)
 
 
 def load_data():
-
+    """
+    Cargamos los datos 
+    """
+    global current_user
     name = ""
     balance = 0
     portfolio = []
@@ -190,7 +190,27 @@ def load_data():
     balance = datos_cargados["Balance"]
     portfolio = datos_cargados["Portfolio"]
 
-    return name, balance, portfolio
+    current_user = User(name, balance, portfolio=[])
+
+    for a in portfolio:
+        if a not in current_user.portfolio:
+            date = Shares(a["Name"], a["Symbol"], a["Price"])
+            current_user.portfolio.append(date)
+
+    return current_user
+
+
+def sell_shares():
+    print(f"El balance actual es de {current_user.balance}")
+    "Tus acciones son:"
+
+    for a in range(len(current_user.portfolio)):
+        valor_actual = yf.Ticker(
+            current_user.portfolio[a].symbol.strip())
+        info = valor_actual.info
+        price = info.get('regularMarketPrice', None)
+        print(
+            f"{current_user.portfolio[a].symbol} Buy price:{current_user.portfolio[a].price} Valor Actual:{price}")
 
 
 def main():
