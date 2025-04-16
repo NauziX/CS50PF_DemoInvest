@@ -1,24 +1,30 @@
 {
-    "Usuario": "Nauzet",
-    "Balance": 95.31999999999996,
-    "Start": 1000,
+    "Username": "Reyes",
+    "Balance": 370.29899999999986,
+    "Start": 3000,
     "Portfolio": [
         {
             "Name": "Microsoft Corporation",
             "Symbol": "MSFT",
-            "Price": 384.54,
-            "Units": 2
+            "Price": 378.32,
+            "Units": 3
         },
         {
-            "Name": "NIO Inc.",
-            "Symbol": "NIO",
-            "Price": 3.63,
-            "Units": 20
+            "Name": "Amazon.com, Inc.",
+            "Symbol": "AMZN",
+            "Price": 176.86,
+            "Units": 4
         },
         {
-            "Name": "Rocket Lab USA, Inc.",
-            "Symbol": "RKLB",
-            "Price": 21.0,
+            "Name": "Meta Platforms, Inc.",
+            "Symbol": "META",
+            "Price": 509.685,
+            "Units": 1
+        },
+        {
+            "Name": "Walmart Inc.",
+            "Symbol": "WMT",
+            "Price": 92.585,
             "Units": 3
         }
     ]

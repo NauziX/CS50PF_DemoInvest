@@ -1,21 +1,21 @@
 import yfinance as yf
 import json
 
-""" 
-    Importamos las librerias necesiria yfincance y json
-    yfinance: donde sacamos el precio de los valores en el mercado financiero
-    json: para para poder guardar y cargar archivos en Json
 
+""" 
+    We import the necessary libraries: yfinance and json.
+    yfinance: used to fetch real-time market prices for financial assets.
+    json: used to save and load data in JSON format.
 """
 
 
 current_user = None
 
 """
-Creamos las Clases User Product y su hija Shares, creo las clases y las funciones
-con el pensamiento de poder scalar el proyecto mas facilmente y porque en este caso solo
-tenemos un tipo de usuario y un producto financiareo pero sabemos que hay muchos mas
-ejempl: bonos cryptoactivos fondos....
+We define the classes User, Product, and its subclass Shares. 
+The classes and functions are designed with scalability in mind, 
+since currently we only have one type of user and one financial product, 
+but we know there are many others (e.g., bonds, crypto assets, mutual funds...).
 """
 
 
@@ -27,60 +27,63 @@ class User:
         self.startacc = balance
 
     def info(self):
-        total_shares = valor_shares()
+
+        total_shares = value_shares()
         total_acc = (self.balance + total_shares) - self.startacc
-        print(f"Tu Cuenta fue creada con el importe de:{self.startacc}")
-        print(f"Tu Balanze acutal es de: {self.balance}")
-        print(f"Tus Acciones Valen: {total_shares}")
+        print(
+            f"Your account was created with an initial balance of: {self.startacc}$")
+        print(f"Your current balance is: {self.balance}$")
+        print(f"Your shares are worth: {total_shares}$")
         if total_acc >= 0:
-            print(f"tus ganancias son de:{total_acc}")
+            print(f"Your total gain is: {total_acc}$")
         else:
-            print(f"tus perdidas son de:{total_acc}")
+            print(f"Your total loss is: {total_acc}$")
 
     def buy(self, product):
+
         if isinstance(product, Shares):
             total_price = product.price * product.unit
             print(total_price)
             if self.balance >= total_price:
                 self.portfolio.append(product)
                 self.balance -= total_price
-                print(f"Has Comprado: {product},{product.unit} unidades")
-                print(f"Balance actual: {self.balance}€")
+                print(f"Purchased: {product}, {product.unit} units")
+                print(f"Updated balance: {self.balance}$")
             else:
-                print("Balance insuficiente para realizar compra.")
+                print("Insufficient balance to complete the purchase.")
         else:
-            print("El objeto proporcianod no es un producto válido.")
+            print("The provided object is not a valid product.")
 
     def sell(self, product):
 
         if not isinstance(product, Product):
-            return print("El objeto proporcionado no es un producto válido.")
-        producto_en_portafolio = next(
+            return print("The provided object is not a valid product.")
+        product_in_portfolio = next(
             (p for p in self.portfolio if p.symbol == product.symbol), None)
 
-        if producto_en_portafolio is None:
-            return print("No tienes este producto en tu portafolio.")
+        if product_in_portfolio is None:
+            return print("You do not own this product in your portfolio.")
 
-        if product.unit > producto_en_portafolio.unit:
-            return print(f"No tienes suficientes unidades de {product.symbol} para vender.")
+        if product.unit > product_in_portfolio.unit:
+            return print(f"You do not have enough units of {product.symbol} to sell.")
 
         real_share = yf.Ticker(product.symbol)
         info = real_share.info
         price = info.get('regularMarketPrice', None)
 
         if price is None:
-            return print("No se pudo obtener el precio actual del producto.")
+            return print("Failed to retrieve the current price for the product.")
 
-        producto_en_portafolio.unit -= product.unit
-        if producto_en_portafolio.unit == 0:
-            self.portfolio.remove(producto_en_portafolio)
+        product_in_portfolio.unit -= product.unit
+        if product_in_portfolio.unit == 0:
+            self.portfolio.remove(product_in_portfolio)
 
-        total_venta = price * product.unit
-        self.balance += total_venta
+        total_sale = price * product.unit
+        self.balance += total_sale
 
         print(
-            f" Has vendido {product.unit} unidades de {product.symbol} por {total_venta:.2f}€")
-        print(f" Balance actual: {self.balance:.2f}€")
+            f"You sold {product.unit} units of {product.symbol} for {total_sale:.2f}$")
+        print(f"Updated balance: {self.balance:.2f}$")
 
 
 class Product:
@@ -105,7 +108,7 @@ class Shares(Product):
 
 """
 Menu()
-Generamos un menu por consola a travez de while donde tambien intetamos controlar de excepciones
+Generates a console-based menu using a while loop, with basic exception handling for user input.
 """
 
 
@@ -114,88 +117,98 @@ def Menu():
     global current_user
 
     while True:
-        print("--------Demo Invest --------")
-        print("1. Crear Usuario ")
-        print("2. Eliminar Usuario ")
-        print("3. Información de Usuario")
-        print("4. Comprar Acciones")
-        print("5. Mostrar Portfolio")
-        print("6. Vender Productos")
-        print("7. Guardar Archivo")
-        print("8. Cargar Archivo")
-        print("9. Salir")
+        print("-------- Demo Invest --------")
+        print("1. Create User")
+        print("2. Delete User")
+        print("3. Show User Information")
+        print("4. Buy Shares")
+        print("5. Show Portfolio")
+        print("6. Sell Shares")
+        print("7. Save Data")
+        print("8. Load Data")
+        print("9. Exit")
 
-        select = int(input("introduce una opcion:"))
+        try:
+            select = int(input("Choose an option: "))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
 
         match select:
             case 1:
-
                 try:
-                    name = input("Nombre de usuario: ")
-                    balance = int(input("Balance Inicial: "))
+                    name = input("Username: ")
+                    balance = int(input("Initial Balance: "))
                     current_user = User(name, balance)
-                    print("Usuario Registrado")
-                except TypeError:
-                    print("El Balance no es un numero")
+                    print("User successfully created.")
+                except ValueError:
+                    print("Balance must be a valid number.")
 
             case 2:
-
                 if current_user is None:
-                    print("No hay ningún usuario cargado para eliminar.")
+                    print("No user currently loaded to delete.")
                 else:
                     current_user = None
-                    print("Usuario eliminado.")
+                    print("User deleted.")
 
             case 3:
                 if current_user is None:
-                    print("No hay ningún usuario cargado todavía.")
+                    print("No user is currently loaded.")
                 else:
                     current_user.info()
+
             case 4:
-                share = input(print("Accion que quieres comprar"))
+                share = input(
+                    "Enter the symbol of the stock you want to buy: ")
                 name, symbol, price = current_sharecryp(share)
-                unit = int(input("Cuantas unidades:"))
-                buyshare = Shares(name, symbol, price, unit)
-                current_user.buy(buyshare)
-                if buyshare:
-                    print("accion comprada")
-                else:
-                    print("No has ingresado el nombre correctamente")
+                try:
+                    unit = int(input("How many units?: "))
+                    buyshare = Shares(name, symbol, price, unit)
+                    current_user.buy(buyshare)
+                    print("Share purchased.")
+                except ValueError:
+                    print("Invalid number of units.")
 
             case 5:
-                print("Mostrando Resultados")
-                current_user.info()
+                print("Displaying portfolio summary:")
+                for asset in current_user.portfolio:
+                    print(asset)
 
             case 6:
-
                 for share in current_user.portfolio:
                     print(share)
 
-                symbol = input("¿Qué acción quieres vender?: ").strip().upper()
-                unit = int(input("¿Cuántas unidades quieres vender?: "))
-                producto_para_vender = Shares(
-                    name="", symbol=symbol, price=0, unit=unit)
-                current_user.sell(producto_para_vender)
+                symbol = input(
+                    "Which stock would you like to sell?: ").strip().upper()
+                try:
+                    unit = int(
+                        input("How many units would you like to sell?: "))
+                    product_to_sell = Shares(
+                        name="", symbol=symbol, price=0, unit=unit)
+                    current_user.sell(product_to_sell)
+                except ValueError:
+                    print("Invalid number of units.")
 
             case 7:
                 save_data()
-                print("Datos guardados correctamente")
+                print("Data successfully saved.")
 
             case 8:
                 load_data()
-                print("Datos cargados correctamente ")
+                print("Data successfully loaded.")
 
             case 9:
-                print("Salir")
+                print("Exiting program.")
                 break
 
             case _:
-                print("Selecciona una opcion del menu")
+                print("Please select a valid option from the menu.")
 
 
 """
-current_sharecryp()
-Donde validamos si la accion existe para luego poder incorporar al portfolio del cliente
+get_share_info()
+Validates whether the stock symbol exists and retrieves its information 
+before adding it to the user's portfolio.
 """
 
 
@@ -212,29 +225,34 @@ def current_sharecryp(ticker_symbol):
 
 """
 save_data()
-Funcion para guardar los datos a travez de un Json recogemos todos los datos de current_user
+Saves all current_user data to a JSON file for later retrieval.
 """
 
 
 def save_data():
 
-    datos = {
-        "Usuario": current_user.username,
+    data = {
+        "Username": current_user.username,
         "Balance": current_user.balance,
         "Start": current_user.startacc,
         "Portfolio": [
-            {"Name": asset.name, "Symbol": asset.symbol,
-                "Price": asset.price, "Units": asset.unit}
-            for asset in current_user.portfolio]
+            {
+                "Name": asset.name,
+                "Symbol": asset.symbol,
+                "Price": asset.price,
+                "Units": asset.unit
+            }
+            for asset in current_user.portfolio
+        ]
     }
 
-    with open("CS50PF_DemoInvest\datos.json", "w") as archivo:
-        json.dump(datos, archivo, indent=4)
+    with open("CS50PF_DemoInvest\datos.json", "w") as file:
+        json.dump(data, file, indent=4)
 
 
 """
 load_data()
-Funcion para cargar los datos a travez de un Json y cargamos todos los datos a current_user
+Loads user data from a JSON file and restores all information into current_user.
 """
 
 
@@ -245,71 +263,69 @@ def load_data():
     balance = 0
     portfolio = []
     startacc = 0
-    with open("CS50PF_DemoInvest\datos.json", "r") as archivo:
-        datos_cargados = json.load(archivo)
 
-    name = datos_cargados["Usuario"]
-    balance = datos_cargados["Balance"]
-    portfolio = datos_cargados["Portfolio"]
-    startacc = datos_cargados["Start"]
+    with open("CS50PF_DemoInvest\datos.json", "r") as file:
+        loaded_data = json.load(file)
+
+    name = loaded_data["Username"]
+    balance = loaded_data["Balance"]
+    portfolio = loaded_data["Portfolio"]
+    startacc = loaded_data["Start"]
 
     current_user = User(name, balance, portfolio=[])
     current_user.startacc = startacc
 
-    for a in portfolio:
-        if a not in current_user.portfolio:
-            date = Shares(a["Name"], a["Symbol"], a["Price"], a["Units"])
-            current_user.portfolio.append(date)
+    for item in portfolio:
+        if item not in current_user.portfolio:
+            share = Shares(item["Name"], item["Symbol"],
+                           item["Price"], item["Units"])
+            current_user.portfolio.append(share)
 
     return current_user
 
 
-"""
-sell_shares()
-Validamos que la venta sea posible y usamos la funcion en la clase para terminar de vender
-"""
-
-
 def sell_shares():
+    """
+    sell_shares()
+    Validates whether the sale is possible and calls the User class method to complete the transaction.
+    """
 
-    print(f"El balance actual es de {current_user.balance}")
-    "Tus acciones son:"
+    print(f"Current balance: {current_user.balance}€")
+    print("Your current shares:")
 
-    for a in range(len(current_user.portfolio)):
-        valor_actual = yf.Ticker(
-            current_user.portfolio[a].symbol.strip())
-        info = valor_actual.info
+    for asset in current_user.portfolio:
+        market_data = yf.Ticker(asset.symbol.strip())
+        info = market_data.info
         price = info.get('regularMarketPrice', None)
-        print(
-            f"{current_user.portfolio[a].symbol} Buy price:{current_user.portfolio[a].price} Valor Actual:{price}")
+        print(f"{asset.symbol} - Buy price: {asset.price}€, Current price: {price}$")
 
     symbol_to_sell = input(
-        "Introduce el símbolo de la acción que quieres vender: ").strip().upper()
-    producto_a_vender = next(
+        "Enter the symbol of the stock you want to sell: ").strip().upper()
+
+    product_to_sell = next(
         (asset for asset in current_user.portfolio if asset.symbol.upper() == symbol_to_sell), None)
 
-    if producto_a_vender:
-        current_user.sell(producto_a_vender)
+    if product_to_sell:
+        current_user.sell(product_to_sell)
     else:
-        print("No se encontró esa acción en tu portafolio.")
+        print("That stock was not found in your portfolio.")
 
 
-"""
-valor_shares()
-con esta funcion sacamos el valor actual de nuesto portfolio
-"""
+def value_shares():
+    """
+    value_shares()
+    Calculates the current total market value of the user's portfolio.
+    """
 
-
-def valor_shares():
-
-    total_valor = 0
-    for a in range(len(current_user.portfolio)):
-        valor_actual = yf.Ticker(current_user.portfolio[a].symbol.strip())
-        info = valor_actual.info
+    total_value = 0
+    for asset in current_user.portfolio:
+        market_data = yf.Ticker(asset.symbol.strip())
+        info = market_data.info
         price = info.get('regularMarketPrice', None)
-        total_valor += price * current_user.portfolio[a].unit
+        if price is not None:
+            total_value += price * asset.unit
 
-    return total_valor
+    return total_value
 
 
 def main():
