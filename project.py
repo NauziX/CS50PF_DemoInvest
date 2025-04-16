@@ -1,7 +1,22 @@
 import yfinance as yf
 import json
 
+""" 
+    Importamos las librerias necesiria yfincance y json
+    yfinance: donde sacamos el precio de los valores en el mercado financiero
+    json: para para poder guardar y cargar archivos en Json
+
+"""
+
+
 current_user = None
+
+"""
+Creamos las Clases User Product y su hija Shares, creo las clases y las funciones
+con el pensamiento de poder scalar el proyecto mas facilmente y porque en este caso solo
+tenemos un tipo de usuario y un producto financiareo pero sabemos que hay muchos mas
+ejempl: bonos cryptoactivos fondos....
+"""
 
 
 class User:
@@ -88,6 +103,12 @@ class Shares(Product):
         return (f"Name: {self.name} Symbol: {self.symbol} Price: {self.price} x {self.unit}")
 
 
+"""
+Menu()
+Generamos un menu por consola a travez de while donde tambien intetamos controlar de excepciones
+"""
+
+
 def Menu():
 
     global current_user
@@ -172,10 +193,14 @@ def Menu():
                 print("Selecciona una opcion del menu")
 
 
+"""
+current_sharecryp()
+Donde validamos si la accion existe para luego poder incorporar al portfolio del cliente
+"""
+
+
 def current_sharecryp(ticker_symbol):
-    """
-    Cargo el ticket que vamos a usar para la compra
-    """
+
     ticker = yf.Ticker(ticker_symbol)
     info = ticker.info
     price = info.get('regularMarketPrice', None)
@@ -185,10 +210,14 @@ def current_sharecryp(ticker_symbol):
     return name, symbol, price
 
 
+"""
+save_data()
+Funcion para guardar los datos a travez de un Json recogemos todos los datos de current_user
+"""
+
+
 def save_data():
-    """
-    Guardamos los datos que tenemos en User
-    """
+
     datos = {
         "Usuario": current_user.username,
         "Balance": current_user.balance,
@@ -203,10 +232,14 @@ def save_data():
         json.dump(datos, archivo, indent=4)
 
 
+"""
+load_data()
+Funcion para cargar los datos a travez de un Json y cargamos todos los datos a current_user
+"""
+
+
 def load_data():
-    """
-    Cargamos los datos 
-    """
+
     global current_user
     name = ""
     balance = 0
@@ -231,6 +264,12 @@ def load_data():
     return current_user
 
 
+"""
+sell_shares()
+Validamos que la venta sea posible y usamos la funcion en la clase para terminar de vender
+"""
+
+
 def sell_shares():
 
     print(f"El balance actual es de {current_user.balance}")
@@ -253,6 +292,12 @@ def sell_shares():
         current_user.sell(producto_a_vender)
     else:
         print("No se encontró esa acción en tu portafolio.")
+
+
+"""
+valor_shares()
+con esta funcion sacamos el valor actual de nuesto portfolio
+"""
 
 
 def valor_shares():
