@@ -1,16 +1,25 @@
 {
-    "Usuario": "Reyes",
-    "Balance": 409.67,
+    "Usuario": "Nauzet",
+    "Balance": 95.31999999999996,
+    "Start": 1000,
     "Portfolio": [
-        {
-            "Name": "Apple Inc.",
-            "Symbol": "AAPL",
-            "Price": 202.52
-        },
         {
             "Name": "Microsoft Corporation",
             "Symbol": "MSFT",
-            "Price": 387.81
+            "Price": 384.54,
+            "Units": 2
+        },
+        {
+            "Name": "NIO Inc.",
+            "Symbol": "NIO",
+            "Price": 3.63,
+            "Units": 20
+        },
+        {
+            "Name": "Rocket Lab USA, Inc.",
+            "Symbol": "RKLB",
+            "Price": 21.0,
+            "Units": 3
         }
     ]
 }

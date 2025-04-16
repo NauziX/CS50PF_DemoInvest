@@ -9,20 +9,27 @@ class User:
         self.username = username
         self.balance = balance
         self.portfolio = portfolio
+        self.startacc = balance
 
     def info(self):
-        print(
-            f"Nuestro Usuario: {self.username} y nuestro balance actuales es de {self.balance}€")
-        print("Portfolia actual: ")
-        for asset in self.portfolio:
-            print(f"- {asset}")
+        total_shares = valor_shares()
+        total_acc = (self.balance + total_shares) - self.startacc
+        print(f"Tu Cuenta fue creada con el importe de:{self.startacc}")
+        print(f"Tu Balanze acutal es de: {self.balance}")
+        print(f"Tus Acciones Valen: {total_shares}")
+        if total_acc >= 0:
+            print(f"tus ganancias son de:{total_acc}")
+        else:
+            print(f"tus perdidas son de:{total_acc}")
 
     def buy(self, product):
-        if isinstance(product, Product):
-            if self.balance >= product.price:
+        if isinstance(product, Shares):
+            total_price = product.price * product.unit
+            print(total_price)
+            if self.balance >= total_price:
                 self.portfolio.append(product)
-                self.balance -= product.price
-                print(f"Has Comprado: {product}")
+                self.balance -= total_price
+                print(f"Has Comprado: {product},{product.unit} unidades")
                 print(f"Balance actual: {self.balance}€")
             else:
                 print("Balance insuficiente para realizar compra.")
@@ -31,13 +38,34 @@ class User:
 
     def sell(self, product):
 
-        if isinstance(product, Product):
-            self.portfolio.remove(product)
-            self.balance += product.price
-            print(f"Has Comprado: {product}")
-            print(f"Balance actual: {self.balance}€")
-        else:
-            print("El objeto proporciando no es un producto válido.")
+        if not isinstance(product, Product):
+            return print("El objeto proporcionado no es un producto válido.")
+        producto_en_portafolio = next(
+            (p for p in self.portfolio if p.symbol == product.symbol), None)
+
+        if producto_en_portafolio is None:
+            return print("No tienes este producto en tu portafolio.")
+
+        if product.unit > producto_en_portafolio.unit:
+            return print(f"No tienes suficientes unidades de {product.symbol} para vender.")
+
+        real_share = yf.Ticker(product.symbol)
+        info = real_share.info
+        price = info.get('regularMarketPrice', None)
+
+        if price is None:
+            return print("No se pudo obtener el precio actual del producto.")
+
+        producto_en_portafolio.unit -= product.unit
+        if producto_en_portafolio.unit == 0:
+            self.portfolio.remove(producto_en_portafolio)
+
+        total_venta = price * product.unit
+        self.balance += total_venta
+
+        print(
+            f" Has vendido {product.unit} unidades de {product.symbol} por {total_venta:.2f}€")
+        print(f" Balance actual: {self.balance:.2f}€")
 
 
 class Product:
@@ -46,23 +74,18 @@ class Product:
         self.symbol = symbol
         self.price = price
 
-    def __str__(self):
-        return (f"Name: {self.name} Symbol: {self.symbol} Price: {self.price}")
-
     def priceinfo(self):
         return self.price
 
 
-class Crypto(Product):
-    def __init__(self, name, symbol, price, blockchain):
-        super().__init__(name, symbol, price)
-        self.blockchain = blockchain
-
-
 class Shares(Product):
-    def __init__(self, name, symbol, price, dividend_yield=0.0):
+    def __init__(self, name, symbol, price, unit=0, dividend_yield=0.0):
         super().__init__(name, symbol, price)
         self.dividend_yield = dividend_yield
+        self.unit = unit
+
+    def __str__(self):
+        return (f"Name: {self.name} Symbol: {self.symbol} Price: {self.price} x {self.unit}")
 
 
 def Menu():
@@ -81,7 +104,7 @@ def Menu():
         print("8. Cargar Archivo")
         print("9. Salir")
 
-        select = int(input("introduce una opcion"))
+        select = int(input("introduce una opcion:"))
 
         match select:
             case 1:
@@ -103,16 +126,15 @@ def Menu():
                     print("Usuario eliminado.")
 
             case 3:
-
                 if current_user is None:
                     print("No hay ningún usuario cargado todavía.")
                 else:
                     current_user.info()
-
             case 4:
                 share = input(print("Accion que quieres comprar"))
                 name, symbol, price = current_sharecryp(share)
-                buyshare = Shares(name, symbol, price)
+                unit = int(input("Cuantas unidades:"))
+                buyshare = Shares(name, symbol, price, unit)
                 current_user.buy(buyshare)
                 if buyshare:
                     print("accion comprada")
@@ -120,12 +142,19 @@ def Menu():
                     print("No has ingresado el nombre correctamente")
 
             case 5:
-                print("Mostrando Portfolio")
+                print("Mostrando Resultados")
+                current_user.info()
+
+            case 6:
+
                 for share in current_user.portfolio:
                     print(share)
 
-            case 6:
-                sell_shares()
+                symbol = input("¿Qué acción quieres vender?: ").strip().upper()
+                unit = int(input("¿Cuántas unidades quieres vender?: "))
+                producto_para_vender = Shares(
+                    name="", symbol=symbol, price=0, unit=unit)
+                current_user.sell(producto_para_vender)
 
             case 7:
                 save_data()
@@ -163,11 +192,11 @@ def save_data():
     datos = {
         "Usuario": current_user.username,
         "Balance": current_user.balance,
+        "Start": current_user.startacc,
         "Portfolio": [
-            {"Name": asset.name, "Symbol": asset.symbol, "Price": asset.price}
-            for asset in current_user.portfolio
-        ]
-
+            {"Name": asset.name, "Symbol": asset.symbol,
+                "Price": asset.price, "Units": asset.unit}
+            for asset in current_user.portfolio]
     }
 
     with open("CS50PF_DemoInvest\datos.json", "w") as archivo:
@@ -182,25 +211,28 @@ def load_data():
     name = ""
     balance = 0
     portfolio = []
-
+    startacc = 0
     with open("CS50PF_DemoInvest\datos.json", "r") as archivo:
         datos_cargados = json.load(archivo)
 
     name = datos_cargados["Usuario"]
     balance = datos_cargados["Balance"]
     portfolio = datos_cargados["Portfolio"]
+    startacc = datos_cargados["Start"]
 
     current_user = User(name, balance, portfolio=[])
+    current_user.startacc = startacc
 
     for a in portfolio:
         if a not in current_user.portfolio:
-            date = Shares(a["Name"], a["Symbol"], a["Price"])
+            date = Shares(a["Name"], a["Symbol"], a["Price"], a["Units"])
             current_user.portfolio.append(date)
 
     return current_user
 
 
 def sell_shares():
+
     print(f"El balance actual es de {current_user.balance}")
     "Tus acciones son:"
 
@@ -211,6 +243,28 @@ def sell_shares():
         price = info.get('regularMarketPrice', None)
         print(
             f"{current_user.portfolio[a].symbol} Buy price:{current_user.portfolio[a].price} Valor Actual:{price}")
+
+    symbol_to_sell = input(
+        "Introduce el símbolo de la acción que quieres vender: ").strip().upper()
+    producto_a_vender = next(
+        (asset for asset in current_user.portfolio if asset.symbol.upper() == symbol_to_sell), None)
+
+    if producto_a_vender:
+        current_user.sell(producto_a_vender)
+    else:
+        print("No se encontró esa acción en tu portafolio.")
+
+
+def valor_shares():
+
+    total_valor = 0
+    for a in range(len(current_user.portfolio)):
+        valor_actual = yf.Ticker(current_user.portfolio[a].symbol.strip())
+        info = valor_actual.info
+        price = info.get('regularMarketPrice', None)
+        total_valor += price * current_user.portfolio[a].unit
+
+    return total_valor
 
 
 def main():
