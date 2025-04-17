@@ -219,7 +219,7 @@ def current_sharecryp(ticker_symbol):
     price = info.get('regularMarketPrice', None)
     name = info.get('longName')
     symbol = info.get('symbol')
-    print(f"Nombre: {name} Simbolo: {symbol} Price: {price}")
+    print(f"Name:{name} Symbol:{symbol} Price:{price}")
     return name, symbol, price
 
 
