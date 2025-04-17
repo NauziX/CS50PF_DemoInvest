@@ -246,7 +246,7 @@ def save_data():
         ]
     }
 
-    with open("CS50PF_DemoInvest\datos.json", "w") as file:
+    with open("datos.json", "w") as file:
         json.dump(data, file, indent=4)
 
 
@@ -264,7 +264,7 @@ def load_data():
     portfolio = []
     startacc = 0
 
-    with open("CS50PF_DemoInvest\datos.json", "r") as file:
+    with open("datos.json", "r") as file:
         loaded_data = json.load(file)
 
     name = loaded_data["Username"]
