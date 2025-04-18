@@ -10,7 +10,6 @@ La interfaz se basa en un menú interactivo que guía al usuario paso a paso.
 ```bash
 # 1. Clonar el repositorio
 $ git clone https://github.com/NauziX/CS50PF_DemoInvest
-$ cd demo‑invest
 
 # 2. Instalar dependencias
 $ pip install -r requirements.txt
