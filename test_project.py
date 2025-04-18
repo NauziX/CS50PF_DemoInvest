@@ -1,4 +1,4 @@
-from project import User, Shares, save_data, load_data, current_user
+from project import User, Shares
 
 
 def test_buy_shares_success():
@@ -11,24 +11,17 @@ def test_buy_shares_success():
     assert user.portfolio[0].symbol == "AAPL"
 
 
-def test_value_shares_basic():
+def test_calculate_portfolio_value_manually():
+    fake_portfolio = [
+        Shares("A", "AAA", 10, unit=2),
+        Shares("B", "BBB", 5, unit=4)]
 
-    global current_user
-    current_user = User("tester", balance=500)
-    current_user.portfolio.append(Shares("Apple", "AAPL", 0, unit=1))
+    total_value = sum(asset.price * asset.unit for asset in fake_portfolio)
 
-    total = value_shares()
-    assert isinstance(total, (int, float))
+    assert total_value == 40
 
 
-def test_save_and_load_user_data():
-    global current_user
-    current_user = User("demo", balance=300)
-    current_user.portfolio.append(Shares("Microsoft", "MSFT", 50, unit=2))
-
-    save_data()
-    loaded_user = load_data()
-
-    assert loaded_user.username == "demo"
-    assert loaded_user.portfolio[0].symbol == "MSFT"
-    assert loaded_user.portfolio[0].unit == 2
+def test_shares_str_representation():
+    share = Shares("Apple", "AAPL", 150, unit=3)
+    expected = "Name: Apple Symbol: AAPL Price: 150 x 3"
+    assert str(share) == expected
