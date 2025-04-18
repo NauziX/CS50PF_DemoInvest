@@ -1,7 +1,5 @@
 # NInvest – Aplicación de Inverción por consola
 
-#### Video Demo:
-
 ## Descripción
 NInvest es una aplicación de consola escrita en **Python** que simula una cuenta de inversión con dinero virtual. Permite crear un usuario, asignarle un saldo inicial y operar con acciones (o criptoactivos en el futuro) en tiempo real utilizando la API pública de Yahoo Finance a través de la librería **yfinance**. Todas las operaciones se guardan en un archivo `datos.json`, de modo que al reiniciar el programa se conserva el historial de compras, ventas y el balance.
 
