@@ -44,9 +44,9 @@ Verás el menú principal:
 ## Estructura del proyecto
 | Archivo | Propósito |
 |--------------|-----------|
-| `project.py` | Función `main()` y resto de funciones exigidas por CS50P; define las clases `User`, `Product`, `Shares` y la lógica del menú. |
+| `project.py` | Contine las funciones y clases `User`, `Product`, `Shares`|
 | `test_project.py` | Conjunto de pruebas unitarias (`pytest`) que verifican compras, representación de acciones y cálculos de valor. |
-| `requirements.txt` | Lista de dependencias (`yfinance`, `pytest`) necesarias para ejecutar y probar el proyecto. |
+| `requirements.txt` | Lista de dependencias (`yfinance`) necesarias para ejecutar y probar el proyecto. |
 | `datos.json` | Archivo generado automáticamente para guardar usuarios y carteras. |
 | `README.md` | Este documento. |
 
